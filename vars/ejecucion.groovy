@@ -17,13 +17,15 @@ def call(){
                     if (params.Eleccion == 'maven') {
                         echo "ejecución maven"
                 
-                        def ejecucion_maven = load 'maven.groovy'
-                        ejecucion_maven.call()
+                        //def ejecucion_maven = load 'maven.groovy'
+                        //ejecucion_maven.call()
+                        maven.call()
                     } else {
                         echo "ejecución gradle"
-                        def etapa
-                        def ejecucion_gradle = load 'gradle.groovy'
-                        ejecucion_gradle.call()
+                        //def etapa
+                        //def ejecucion_gradle = load 'gradle.groovy'
+                        //ejecucion_gradle.call()
+                        gradle.call()
                     }
                 }
              }
