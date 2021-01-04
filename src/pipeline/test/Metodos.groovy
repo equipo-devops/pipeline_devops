@@ -1,20 +1,20 @@
 package pipeline.test
 
 
-def getValidaStages(string Stageseleccionados,arraylist  Stagevalidos){
+def getValidaStages(String stageseleccionados,Arraylist  stagevalidos){
 
 def stages = []
 
-if (Stageseleccionados?.trim()){
-	Stageseleccionados.split(';').each {
+if (stageseleccionados?.trim()){
+	stageseleccionados.split(';').each {
 
-		if (it in Stagevalidos){
+		if (it in stagevalidos){
 
-			stage.add(it)
+			stages.add(it)
 
 			}else{
 
-				error "${it} no existe como Stage. Stage validos son : ${Stagevalidos}"
+				error "${it} no existe como Stage. Stage validos son : ${stagevalidos}"
 
 			}
 		}
@@ -23,7 +23,7 @@ if (Stageseleccionados?.trim()){
 	}
 	else{
 
-			stages= Stagevalidos
+			stages= stagevalidos
 			println "validación correcta . Se ejecutaran los siguientes stages: ${stages}"
 
 
