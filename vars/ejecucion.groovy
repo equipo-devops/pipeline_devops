@@ -5,7 +5,7 @@ def call(){
      pipeline {
     agent any
 
-    parameters {choise(name: 'Eleccion', chooises:['gradle','maven'],descripcion: 'Elección de herramienta de construcción')}
+    parameters {choice(name: 'Eleccion', choices:['gradle','maven'],descripcion: 'Elección de herramienta de construcción')}
 
     options {
       timeout(time: 120, unit: 'SECONDS') 
