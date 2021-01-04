@@ -4,6 +4,9 @@ def call(){
     //Escribir directamente el código del stage, sin agregarle otra clausula de Jenkins.
      pipeline {
     agent any
+
+    parameters {choise(name: 'Eleccion', chooises:['gradle','maven'],descripcion: 'Elección de herramienta de construcción')}
+
     options {
       timeout(time: 120, unit: 'SECONDS') 
     }
