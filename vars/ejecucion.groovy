@@ -22,6 +22,10 @@ def call(){
                    wrap([$class: 'BuildUser']) { script { env.USER_ID = "${BUILD_USER_ID}" } }  
 
                 script{
+
+
+                      sh 'env'
+                      
                     if (params.Eleccion == 'maven') {
                         echo "ejecución maven"
                 
