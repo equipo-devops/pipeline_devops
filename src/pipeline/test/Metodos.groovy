@@ -1,7 +1,7 @@
 package pipeline.test
 
 
-def getValidaStages(String stageseleccionados,Arraylist  stagevalidos){
+def getValidaStages(String stageseleccionados, Arraylist  stagevalidos){
 
 figlet 'Metodos'
 //figlet stageseleccionados
@@ -34,6 +34,13 @@ if (stageseleccionados?.trim()){
 	}
 
 	return stages
+
+
+}
+
+def prueba(){
+
+	println "parametros hola"
 
 
 }
