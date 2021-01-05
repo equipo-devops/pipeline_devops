@@ -2,7 +2,8 @@ import pipeline.*
 
 def call(String eleccionstages){
 
-
+figlet  'maven'
+figlet eleccionstages
 
 def stagesvalidas = ['Compile','Unit','Jar','rest','SonarQube','NexusUpload','Run','Test','Stop']
 def  metodo = new test.Metodos()

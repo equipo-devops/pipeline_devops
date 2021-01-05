@@ -3,6 +3,10 @@ package pipeline.test
 
 def getValidaStages(String stageseleccionados,Arraylist  stagevalidos){
 
+figlet 'Metodos'
+figlet stageseleccionados
+figlet stagevalidos
+
 def stages = []
 
 if (stageseleccionados?.trim()){
