@@ -1,183 +1,154 @@
-import pipeline.*
+class PasosMaven {
+    static def nombres() {      
+      return ['Compile','Unit','Jar','SonarQube analysis','Nexus Upload','Run','Test']
+    }
+}
 
-def call(String eleccionstages){
+class PasosMavenCI {
+    static def nombres() {      
+      return ['compile','unit','jar','sonarQube','nexusCIUpload']
+    }
+}
 
-figlet  'maven2'
-//figlet eleccionstages
+class PasosMavenCD {
+    static def nombres() {      
+      return ['nexusDownload','runStage','test','nexusCDUpload']
+    }
+}
 
-def stagesvalidas = ['Compile','Unit','Jar','rest','SonarQube','NexusUpload','Run','Test','Stop']
-def  metodo = new test.Metodos()
-def stages =  metodo.getValidaStages(eleccionstages,stagesvalidas)
+def llamar_pasos_ci(){
+    def pasos = new PasosMavenCI()
+    def nombres = pasos.nombres()
+    return nombres
+}
 
-stages.each{
+def llamar_pasos_cd(){
+    def pasos = new PasosMavenCD()
+    def nombres = pasos.nombres()
+    return nombres
+}
+
+def llamar_pasos(){
+    def pasos = new PasosMaven()
+    def nombres = pasos.nombres()
+    return nombres
+}
+
+def call(stgs,ci_cd){
+  
+    script{
+      def pasos = new PasosMaven()
+      def nombres = pasos.nombres()
+      def stages = []
+
+      if(ci_cd == 'ci'){
+        pasos = new PasosMavenCI()
+        nombres = pasos.nombres()
+        stgs.each{
+          if(nombres.indexOf(it) != -1 ){
+            stages.add(it)
+          }
+        }
+      }
+      else if(ci_cd == 'cd'){
+        pasos = new PasosMavenCD()
+        nombres = pasos.nombres()
+        stgs.each{
+          if(nombres.indexOf(it) != -1 ){
+            stages.add(it)
+          }
+        }
+      }
+      else{}
+
+      stages.each{
         stage(it){
-         
-          try {
-
+          try{
             "${it}"()
           }
           catch(Exception e){
-               error "Stage ${it} tiene problemas : ${e}"
-
+            error("Stage ${it} tiene problemas: ${e} o no existe.")
           }
-
         }
-
-
-}
-}
-
-  
-
-def Compile(){
-
-   script { env.ETAPA = "Compile" }
-          
-              sh './mvnw clean compile -e'
-
-
+      }
+    }
 }
 
 
-
-def Unit(){
-
-
-                    script { env.ETAPA = "Unit" }
-             
-                    sh './mvnw clean test -e'
-}
-
-def Jar(){
-
-script { env.ETAPA = "Jar" }
-                    sh './mvnw clean package -e'
-
-}
-
-def SonarQube(){
-
-   script { env.ETAPA = "SonarQube" }
-            
-          withSonarQubeEnv('Sonar') { // You can override the credential to be used
-            sh './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
-            }
-}
-
-def NexusUpload(){
-
-
-script { env.ETAPA = "Nexus Upload" }
-                    
-                        nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'test-nexus',
-                         packages: [[$class: 'MavenPackage', mavenAssetList: [[classifier: '',
-                          extension: 'jar', filePath: 'build/DevOpsUsach2020-0.0.1.jar']], mavenCoordinate: [artifactId: 'DevOpsUsach2020',
-                           groupId: 'com.devopsusach2020', packaging: 'jar', version: '1.0.2']]]
-
+def compile(){
+  sh 'nohup bash ./mvnw spring-boot:run &'
 }
 
 
-def Run(){
-
-   script { env.ETAPA = "Run" }
-                    sh 'nohup bash mvnw spring-boot:run &'
-
+def unit(){
+  sh './mvnw clean test -e'
 }
 
 
-
-def Test(){
-
- script { env.ETAPA = "Test" }
-            
-                sleep 20
-                sh 'curl http://localhost:8081/rest/mscovid/test?msg=testing'
-
+def jar(){
+  sh './mvnw clean package -e'
 }
 
 
-def Stop(){
-
- script { env.ETAPA = "Stop" }
-            
-                    sh 'bash mvnw spring-boot:stop &'
-
+def sonarQube(){
+  withSonarQubeEnv('sonar') {
+      sh './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
+  }
 }
 
 
- /* script{
-    //Escribir directamente el código del stage, sin agregarle otra clausula de Jenkins.
-            stage('Compile') {
-              script { env.ETAPA = "Compile" }
-          
-              sh './mvnw clean compile -e'
-          
-            
-        }
-        stage('Unit') {
-            
-                    script { env.ETAPA = "Unit" }
-             
-                    sh './mvnw clean test -e'
-            
-            
-        }
-        stage('Jar') {
-          
-                   script { env.ETAPA = "Jar" }
-                    sh './mvnw clean package -e'
-            
-            
-        }
-
-          stage('SonarQube') {
-             script { env.ETAPA = "SonarQube" }
-          	
-    			withSonarQubeEnv('Sonar') { // You can override the credential to be used
-      			sh './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
-    				}
-			   
-  		}
-
-      stage('Nexus Upload'){
-                        script { env.ETAPA = "Nexus Upload" }
-                    
-                        nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'test-nexus',
-                         packages: [[$class: 'MavenPackage', mavenAssetList: [[classifier: '',
-                          extension: 'jar', filePath: 'build/DevOpsUsach2020-0.0.1.jar']], mavenCoordinate: [artifactId: 'DevOpsUsach2020',
-                           groupId: 'com.devopsusach2020', packaging: 'jar', version: '1.0.2']]]
-                        
-                }
+def nexusCIUpload(){
+  nexusArtifactUploader(
+    nexusVersion: 'nexus3',
+    protocol: 'http',
+    nexusUrl: 'localhost:8081',
+    groupId: 'com.devopsusach2020',
+    version: env.VERSION_PACKAGE_CI,
+    repository: 'test-nexus',
+    credentialsId: 'nexus-dianela',
+    artifacts: [
+          [artifactId: 'DevOpsUsach2020',
+          classifier: '',
+          file: 'build/DevOpsUsach2020-' + env.VERSION_PACKAGE_CI + '.jar',
+          type: 'jar']
+    ]
+  )
+}
 
 
-        stage('Run') {
-            
-                    script { env.ETAPA = "Run" }
-                    sh 'nohup bash mvnw spring-boot:run &'
-                    
-              
-             
-               
-            
-        }
-         stage('Test') {
-                script { env.ETAPA = "Test" }
-            
-                sleep 20
-                sh 'curl http://localhost:8081/rest/mscovid/test?msg=testing'
-            
-        } 
-        
-       stage('Stop') {
-                    script { env.ETAPA = "Stop" }
-            
-                    sh 'bash mvnw spring-boot:stop &'
-                    
-                 
-            
-        }
-  }*/
+def nexusCDUpload(){
+  nexusArtifactUploader(
+    nexusVersion: 'nexus3',
+    protocol: 'http',
+    nexusUrl: 'localhost:8081',
+    groupId: 'com.devopsusach2020',
+    version: env.VERSION_PACKAGE_CD,
+    repository: 'test-nexus',
+    credentialsId: 'nexus-dianela',
+    artifacts: [
+          [artifactId: 'DevOpsUsach2020',
+          classifier: '',
+          file: 'build/DevOpsUsach2020-' + env.VERSION_PACKAGE_CD + '.jar',
+          type: 'jar']
+    ]
+  )
+}
 
+
+def runStage(){
+  sh 'nohup bash ./mvnw spring-boot:run &'
+}
+
+
+def test(){
+  sleep(time: 10, unit: "SECONDS")
+  sh 'curl -X GET "http://localhost:8081/rest/mscovid/test?msg=testing"'
+}
+
+
+def nexusDownload(String vers){
+  sh 'curl -X GET -u admin:admin http://localhost:8081/repository/test-nexus/com/devopsusach2020/DevOpsUsach2020/' + env.VERSION_PACKAGE_CI + '/DevOpsUsach2020-' + env.VERSION_PACKAGE_CI + '.jar -O'
+}
 
 
 return this;
