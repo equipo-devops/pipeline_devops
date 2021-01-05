@@ -25,6 +25,7 @@ stages.each{
 
 
 }
+}
 
   
 
@@ -177,6 +178,6 @@ def Stop(){
         }
   }*/
 
-}
+
 
 return this;

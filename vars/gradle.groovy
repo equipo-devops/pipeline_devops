@@ -26,6 +26,7 @@ stages.each{
 
 
 }
+}
 
 
 
@@ -139,6 +140,6 @@ def nexus(){
             
   */
 
-}
+
 
 return this;
