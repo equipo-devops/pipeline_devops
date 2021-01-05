@@ -25,21 +25,23 @@ def call(){
 
 
                       sh 'env'
-                      
+
                     if (params.Eleccion == 'maven') {
-                        echo "ejecución maven"
+                        //echo "ejecución maven"
                 
                         //def ejecucion_maven = load 'maven.groovy'
                         //ejecucion_maven.call()
                        // maven.call()
-                       maven ="${params.stages}"
+                       figlet  'maven'
+                       maven "${params.stages}"
                     } else {
-                        echo "ejecución gradle"
+                        figlet  'gradle'
+                        //echo "ejecución gradle"
                         //def etapa
                         //def ejecucion_gradle = load 'gradle.groovy'
                         //ejecucion_gradle.call()
                         //gradle.call()
-                        gradle = "${params.stages}"
+                        gradle  "${params.stages}"
                     }
                 }
              }
