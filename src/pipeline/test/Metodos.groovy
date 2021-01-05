@@ -4,8 +4,8 @@ package pipeline.test
 def getValidaStages(String stageseleccionados,Arraylist  stagevalidos){
 
 figlet 'Metodos'
-figlet stageseleccionados
-figlet stagevalidos
+//figlet stageseleccionados
+//figlet stagevalidos
 
 def stages = []
 
