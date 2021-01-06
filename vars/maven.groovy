@@ -76,7 +76,7 @@ def call(stgs,ci_cd){
 
 
 def compile(){
-  sh 'nohup bash ./mvnw spring-boot:run &'
+  sh './mvnw.cmd clean compile -e'
 }
 
 
