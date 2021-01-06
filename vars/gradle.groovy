@@ -2,7 +2,7 @@ import pipeline.*
 
 class PasosGradle {
     static def nombres() {      
-      return ['buildAndTest','sonar','run','rest','nexus']
+      return ['buildAndTest','sonar','Run','rest','nexus']
     }
 }
 
@@ -64,7 +64,7 @@ def sonar(){
 }
 
 
-def run(){
+def Run(){
 
      sh 'nohup bash gradle bootRun &'
 
