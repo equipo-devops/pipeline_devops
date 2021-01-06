@@ -9,7 +9,6 @@ def call(){
         }
         parameters {
         string defaultValue: '', description: '', name: 'stage', trim: false
-        string defaultValue: '', description: '', name: 'version', trim: false
         string defaultValue: '', description: '', name: 'tipo', trim: false
         }
         stages {

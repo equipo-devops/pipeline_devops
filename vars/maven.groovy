@@ -105,40 +105,12 @@ def nexusCIUpload(){
                           extension: 'jar', filePath: 'build/DevOpsUsach2020-' + env.VERSION_PACKAGE_CI + '.jar']], mavenCoordinate: [artifactId: 'DevOpsUsach2020',
                            groupId: 'com.devopsusach2020', packaging: 'jar', version: env.VERSION_PACKAGE_CI]]]
 
-  /*nexusArtifactUploader(
-    nexusVersion: 'nexus3',
-    protocol: 'http',
-    nexusUrl: 'localhost:8081',
-    groupId: 'com.devopsusach2020',
-    version: env.VERSION_PACKAGE_CI,
-    repository: 'test-nexus',
-    credentialsId: 'credencial_nexus',
-    artifacts: [
-          [artifactId: 'DevOpsUsach2020',
-          classifier: '',
-          file: 'build/DevOpsUsach2020-' + env.VERSION_PACKAGE_CI + '.jar',
-          type: 'jar']
-    ]
-  )*/
+  
 }
 
 
 def nexusCDUpload(){
-  /*nexusArtifactUploader(
-    nexusVersion: 'nexus3',
-    protocol: 'http',
-    nexusUrl: 'localhost:8081',
-    groupId: 'com.devopsusach2020',
-    version: env.VERSION_PACKAGE_CD,
-    repository: 'test-nexus',
-    credentialsId: 'credencial_nexus',
-    artifacts: [
-          [artifactId: 'DevOpsUsach2020',
-          classifier: '',
-          file: 'build/DevOpsUsach2020-' + env.VERSION_PACKAGE_CD + '.jar',
-          type: 'jar']
-    ]
-  )*/
+  
 
 nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'test-nexus',
                          packages: [[$class: 'MavenPackage', mavenAssetList: [[classifier: '',
