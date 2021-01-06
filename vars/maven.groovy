@@ -1,181 +1,109 @@
-import pipeline.*
+class PasosMaven {
+    static def nombres() {      
+      return ['Compile','Unit','Jar','sonarQube','nexusUpload','Run','Test']
+    }
+}
 
-def call(String eleccionstages){
 
 
 
-def stagesvalidas = ['Compile','Unit','Jar','rest','SonarQube','NexusUpload','Run','Test','Stop']
-def  metodo = new test.Metodos()
-def stages =  metodo.getValidaStages(eleccionstages,stagesvalidas)
+def llamar_pasos(){
+    def pasos = new PasosMaven()
+    def nombres = pasos.nombres()
+    return nombres
+}
 
-stages.each{
+def call(stgs){
+  
+    script{
+      def pasos = new PasosMaven()
+      def nombres = pasos.nombres()
+      def stages = []
+
+        stgs.each{
+          if(nombres.indexOf(it) != -1 ){
+            stages.add(it)
+          }
+        }
+
+      
+
+      stages.each{
         stage(it){
-         
-          try {
-
+          try{
             "${it}"()
           }
           catch(Exception e){
-               error "Stage ${it} tiene problemas : ${e}"
-
+            error("Stage ${it} tiene problemas: ${e} o no existe.")
           }
-
         }
-
-
+      }
+    }
 }
 
-  
 
 def Compile(){
-
-   script { env.ETAPA = "Compile" }
-          
-              sh './mvnw clean compile -e'
-
-
+  sh 'nohup bash ./mvnw spring-boot:run &'
 }
-
 
 
 def Unit(){
-
-
-                    script { env.ETAPA = "Unit" }
-             
-                    sh './mvnw clean test -e'
+  sh './mvnw clean test -e'
 }
+
 
 def Jar(){
-
-script { env.ETAPA = "Jar" }
-                    sh './mvnw clean package -e'
-
+  sh './mvnw clean package -e'
 }
 
-def SonarQube(){
 
-   script { env.ETAPA = "SonarQube" }
-            
-          withSonarQubeEnv('Sonar') { // You can override the credential to be used
-            sh './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
-            }
+def sonarQube(){
+  withSonarQubeEnv('sonar') {
+      sh './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
+  }
 }
 
-def NexusUpload(){
+
+def nexusUpload(){
 
 
-script { env.ETAPA = "Nexus Upload" }
-                    
-                        nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'test-nexus',
+      nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'test-nexus',
                          packages: [[$class: 'MavenPackage', mavenAssetList: [[classifier: '',
-                          extension: 'jar', filePath: 'build/DevOpsUsach2020-0.0.1.jar']], mavenCoordinate: [artifactId: 'DevOpsUsach2020',
-                           groupId: 'com.devopsusach2020', packaging: 'jar', version: '1.0.2']]]
+                          extension: 'jar', filePath: 'build/DevOpsUsach2020-' + env.VERSION_PACKAGE_CI + '.jar']], mavenCoordinate: [artifactId: 'DevOpsUsach2020',
+                           groupId: 'com.devopsusach2020', packaging: 'jar', version: env.VERSION_PACKAGE_CI]]]
 
+  /*nexusArtifactUploader(
+    nexusVersion: 'nexus3',
+    protocol: 'http',
+    nexusUrl: 'localhost:8081',
+    groupId: 'com.devopsusach2020',
+    version: env.VERSION_PACKAGE_CI,
+    repository: 'test-nexus',
+    credentialsId: 'credencial_nexus',
+    artifacts: [
+          [artifactId: 'DevOpsUsach2020',
+          classifier: '',
+          file: 'build/DevOpsUsach2020-' + env.VERSION_PACKAGE_CI + '.jar',
+          type: 'jar']
+    ]
+  )*/
 }
+
+
+
 
 
 def Run(){
-
-   script { env.ETAPA = "Run" }
-                    sh 'nohup bash mvnw spring-boot:run &'
-
+  sh 'nohup bash ./mvnw spring-boot:run &'
 }
-
 
 
 def Test(){
-
- script { env.ETAPA = "Test" }
-            
-                sleep 20
-                sh 'curl http://localhost:8081/rest/mscovid/test?msg=testing'
-
+  sleep(time: 10, unit: "SECONDS")
+  sh 'curl -X GET "http://localhost:8081/rest/mscovid/test?msg=testing"'
 }
 
 
-def Stop(){
 
- script { env.ETAPA = "Stop" }
-            
-                    sh 'bash mvnw spring-boot:stop &'
-
-}
-
-
- /* script{
-    //Escribir directamente el código del stage, sin agregarle otra clausula de Jenkins.
-            stage('Compile') {
-              script { env.ETAPA = "Compile" }
-          
-              sh './mvnw clean compile -e'
-          
-            
-        }
-        stage('Unit') {
-            
-                    script { env.ETAPA = "Unit" }
-             
-                    sh './mvnw clean test -e'
-            
-            
-        }
-        stage('Jar') {
-          
-                   script { env.ETAPA = "Jar" }
-                    sh './mvnw clean package -e'
-            
-            
-        }
-
-          stage('SonarQube') {
-             script { env.ETAPA = "SonarQube" }
-          	
-    			withSonarQubeEnv('Sonar') { // You can override the credential to be used
-      			sh './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
-    				}
-			   
-  		}
-
-      stage('Nexus Upload'){
-                        script { env.ETAPA = "Nexus Upload" }
-                    
-                        nexusPublisher nexusInstanceId: 'nexus', nexusRepositoryId: 'test-nexus',
-                         packages: [[$class: 'MavenPackage', mavenAssetList: [[classifier: '',
-                          extension: 'jar', filePath: 'build/DevOpsUsach2020-0.0.1.jar']], mavenCoordinate: [artifactId: 'DevOpsUsach2020',
-                           groupId: 'com.devopsusach2020', packaging: 'jar', version: '1.0.2']]]
-                        
-                }
-
-
-        stage('Run') {
-            
-                    script { env.ETAPA = "Run" }
-                    sh 'nohup bash mvnw spring-boot:run &'
-                    
-              
-             
-               
-            
-        }
-         stage('Test') {
-                script { env.ETAPA = "Test" }
-            
-                sleep 20
-                sh 'curl http://localhost:8081/rest/mscovid/test?msg=testing'
-            
-        } 
-        
-       stage('Stop') {
-                    script { env.ETAPA = "Stop" }
-            
-                    sh 'bash mvnw spring-boot:stop &'
-                    
-                 
-            
-        }
-  }*/
-
-}
 
 return this;
