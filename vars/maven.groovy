@@ -105,7 +105,7 @@ def nexusCIUpload(){
     groupId: 'com.devopsusach2020',
     version: env.VERSION_PACKAGE_CI,
     repository: 'test-nexus',
-    credentialsId: 'credencial-nexus',
+    credentialsId: 'credencial_nexus',
     artifacts: [
           [artifactId: 'DevOpsUsach2020',
           classifier: '',
@@ -124,7 +124,7 @@ def nexusCDUpload(){
     groupId: 'com.devopsusach2020',
     version: env.VERSION_PACKAGE_CD,
     repository: 'test-nexus',
-    credentialsId: 'credencial-nexus',
+    credentialsId: 'credencial_nexus',
     artifacts: [
           [artifactId: 'DevOpsUsach2020',
           classifier: '',
