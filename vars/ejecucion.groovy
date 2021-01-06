@@ -17,28 +17,30 @@ def call(){
                 steps {
                     script{
                         sh 'env'
-                        figlet 'hola'
+                        figlet 'bienvenidos'
 
                         // version a env
                         env.VERSION_PACKAGE_CI = '0.0.1'
                         env.VERSION_PACKAGE_CD = '0.0.2'
                         // validar tipo
                         if (params.tipo == "maven"){
-                            echo "ejecución maven"
+                            figlet "ejecución maven"
                         }
                         else if (params.tipo == "gradle"){
-                            echo "ejecución gradle"
+                            figlet "ejecución gradle"
                         }
                         else {
                             error("error de validacion de tipo. parámetro tipo ${params.tipo} no es válido")
                         }
 
-                        // validar rama
+                        // validar rama variable entorno
                         if (env.GIT_BRANCH == 'develop' || env.GIT_BRANCH.contains('feature')){
                             ci_cd = 'ci'
+                            figlet "Intregracion Continua"
                         }
                         else if (env.GIT_BRANCH.contains('release')){
                             ci_cd = 'cd'
+                            figlet "Entrega Continua"
                         }
                         else{
                             error("rama a ejecutar no corresponde a ninguna conocida: develop, feature, release.")
@@ -46,16 +48,22 @@ def call(){
 
                         // validar stage
                         if (params.stage == "") {
-                            echo "ejecución de todos los stages"
+                            figlet "ejecución de todos los stages"
                             if (params.tipo == "maven" && ci_cd == "ci"){
                                 pasos_maven = maven.llamar_pasos_ci()
                             }
                             else if (params.tipo == "maven" && ci_cd == "cd"){
                                 pasos_maven = maven.llamar_pasos_cd()
                             }
-                            else{
-                                pasos_gradle = gradle.llamar_pasos()
+                            else if (params.tipo == "gradle" && ci_cd == "ci"){
+                                pasos_gradle = gradle.llamar_pasos_ci()
                             }
+                            else if (params.tipo == "gradle" && ci_cd == "cd"){
+                                pasos_gradle = gradle.llamar_pasos_cd()
+                            }
+                            /*else{
+                                pasos_gradle = gradle.llamar_pasos()
+                            }*/
                         }
                         else if (params.stage.split(';').length > 0 ){
                             echo "ejecutar los siguientes stages"
@@ -120,7 +128,7 @@ def call(){
                             maven.call(pasos_maven,ci_cd)
  
                         } else {
-                            gradle.call(pasos_gradle)
+                            gradle.call(pasos_gradle,ci_cd)
                         }
                     }
                 }
@@ -128,10 +136,10 @@ def call(){
         } 
         post {
             success {
-                slackSend (color: '#00FF00', message: "Build Success: [${user}] ['${env.JOB_NAME} [${env.BUILD_NUMBER}]'] [${params.CHOICE}] Ejecución exitosa")
+                slackSend (color: '#00FF00', message: "Build Success: [${user}] ['${env.JOB_NAME} [${env.BUILD_NUMBER}]'] [${params.tipo}] Ejecución exitosa")
             }
             failure {
-            slackSend (color: '#FF0000', message: "Build Failure: [${user}] ['${env.JOB_NAME} [${env.BUILD_NUMBER}]'] [${params.CHOICE}] Ejecución fallida en stage [${env.STG_NAME}]")
+            slackSend (color: '#FF0000', message: "Build Failure: [${user}] ['${env.JOB_NAME} [${env.BUILD_NUMBER}]'] [${params.tipo}] Ejecución fallida en stage [${env.STG_NAME}]")
             }
         }
     }
