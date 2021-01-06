@@ -76,7 +76,7 @@ def call(stgs,ci_cd){
 
 
 def compile(){
-  sh './mvnw.cmd clean compile -e'
+  sh './mvnw clean compile -e'
 }
 
 
