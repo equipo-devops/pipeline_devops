@@ -88,7 +88,7 @@ def buildAndTest(){
 
 def sonar(){
 
-        def scannerHome = tool 'sonar'; // scanner
+        def scannerHome = tool 'sonar-scanner'; // scanner
                 withSonarQubeEnv('sonar') { // server
                     sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=ejemplo-gradle -Dsonar.java.binaries=build " 
                 }
